@@ -1,9 +1,14 @@
 import "/index.css";
-
+import { Toaster } from "@/components/ui/sonner";
 import { RouterProvider } from "react-router/dom";
 
 import { router } from "./routes";
 
 export function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <Toaster richColors/>
+      <RouterProvider router={router} />
+    </>
+  );
 }
