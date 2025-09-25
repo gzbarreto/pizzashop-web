@@ -1,8 +1,28 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@radix-ui/react-label";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+
+const signInFormSchema = z.object({
+  email: z.email("Digite um e-mail válido"),
+});
+
+type SignInForm = z.infer<typeof signInFormSchema>;
 
 export function SignIn() {
+  const {
+    register,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = useForm<SignInForm>();
+
+  async function handleSignIn(data: SignInForm) {
+    console.log(data);
+    // Simulate an API call
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+  }
+
   return (
     <div className="p-8">
       <div className="flex w-[350px] flex-col justify-center gap-6">
@@ -15,12 +35,19 @@ export function SignIn() {
           </p>
         </div>
 
-        <form className="space-y-4">
+        <form onSubmit={handleSubmit(handleSignIn)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="E-mail" />
+            <Input
+              id="email"
+              type="email"
+              placeholder="E-mail"
+              {...register("email")}
+            />
           </div>
-          <Button className="w-full" type="submit">Acessar painel</Button>
+          <Button disabled={isSubmitting} className="w-full" type="submit">
+            Acessar painel
+          </Button>
         </form>
       </div>
     </div>
