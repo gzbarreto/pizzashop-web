@@ -5,13 +5,17 @@ import { AuthLayout } from "./pages/_layouts/auth";
 import { Dashboard } from "./pages/app/dashboard";
 import { SignIn } from "./pages/auth/sign-in";
 import { SignUp } from "./pages/auth/sign-up";
+import { Orders } from "./pages/app/orders/orders";
 
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <AppLayout />,
     // carrega a pagina como filho do layout
-    children: [{ path: "/", element: <Dashboard /> }],
+    children: [
+      { path: "/", element: <Dashboard /> },
+      { path: "/orders", element: <Orders /> },
+    ],
   },
   {
     path: "/",
