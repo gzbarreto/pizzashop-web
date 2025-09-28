@@ -10,12 +10,14 @@ export interface PaginationProps {
   pageIndex: number;
   totalCount: number;
   perPage: number;
+  onPageChange: (pageIndex: number) => Promise<void> | void;
 }
 
 export function Pagination({
   pageIndex,
   totalCount,
   perPage,
+  onPageChange,
 }: PaginationProps) {
   const pages = Math.ceil(totalCount / perPage);
 
@@ -31,7 +33,9 @@ export function Pagination({
         </div>
 
         <div className="flex items-center gap-2">
+          {/* avança para primeira pagina */}
           <Button
+            onClick={() => onPageChange(0)}
             variant="outline"
             className="h-8 w-8 p-0"
             disabled={pageIndex === 0}
@@ -40,7 +44,9 @@ export function Pagination({
             <span className="sr-only">Primeira página</span>
           </Button>
 
+          {/* volta uma pagina */}
           <Button
+            onClick={() => onPageChange(pageIndex - 1)}
             variant="outline"
             className="h-8 w-8 p-0"
             disabled={pageIndex === 0}
@@ -49,7 +55,9 @@ export function Pagination({
             <span className="sr-only">Página anterior</span>
           </Button>
 
+          {/* avança uma pagina */}
           <Button
+            onClick={() => onPageChange(pageIndex + 1)}
             variant="outline"
             className="h-8 w-8 p-0"
             disabled={pageIndex === pages - 1}
@@ -58,7 +66,9 @@ export function Pagination({
             <span className="sr-only">Próxima página</span>
           </Button>
 
+          {/* avança para ultima pagina */}
           <Button
+            onClick={() => onPageChange(pages - 1)}
             variant="outline"
             className="h-8 w-8 p-0"
             disabled={pageIndex === pages - 1}
