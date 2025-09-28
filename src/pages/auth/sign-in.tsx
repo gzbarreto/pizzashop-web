@@ -5,6 +5,8 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Link } from "react-router";
+import { useMutation } from "@tanstack/react-query";
+import { signIn } from "@/api/sign-in";
 
 const signInFormSchema = z.object({
   email: z.email("Digite um e-mail válido"),
@@ -19,11 +21,14 @@ export function SignIn() {
     formState: { isSubmitting },
   } = useForm<SignInForm>();
 
+  const { mutateAsync: authenticate } = useMutation({
+    mutationFn: signIn,
+  });
+
   async function handleSignIn(data: SignInForm) {
     try {
-      console.log(data);
       // Simulate an API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await authenticate({email: data.email});
 
       toast.success("Enviamos um link de autenticação para seu e-mail.", {
         action: {
@@ -42,9 +47,7 @@ export function SignIn() {
     <div className="p-8">
       {/* usando asChild no componente do shadecn, é possivel estilizar o filho igual ao componente pai, ou seja, o link fica estilizado como botão nesse caso */}
       <Button variant="link" asChild className="absolute right-8 top-8">
-        <Link to="/sign-up">
-          Não possui uma conta? Crie uma agora!
-        </Link>
+        <Link to="/sign-up">Não possui uma conta? Crie uma agora!</Link>
       </Button>
       <div className="flex w-[350px] flex-col justify-center gap-6">
         <div className="flex flex-col gap-2 text-center">
