@@ -16,6 +16,10 @@ import z from "zod";
 export function Orders() {
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const orderId = searchParams.get("orderId");
+  const customerName = searchParams.get("customerName");
+  const status = searchParams.get("status");
+
   //trata o index para exibir 1 ao inves de 0 para o usuario,
   //mas mantem o 0 como primeiro índice para a aplicação
   const pageIndex = z.coerce
@@ -25,8 +29,14 @@ export function Orders() {
 
   const { data: result } = useQuery({
     //quando a query depende de um parametro, precisa ser passado no queryKey
-    queryKey: ["orders", pageIndex],
-    queryFn: () => getOrders({ pageIndex }),
+    queryKey: ["orders", pageIndex, orderId, customerName, status],
+    queryFn: () =>
+      getOrders({
+        pageIndex,
+        orderId,
+        customerName,
+        status: status === "all" ? null : status,
+      }),
   });
 
   function handlePaginate(pageIndex: number) {
