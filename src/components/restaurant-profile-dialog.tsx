@@ -11,7 +11,10 @@ import {
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
-import { getManagedRestaurant, type GetManagedRestaurantResponse } from "@/api/get-manage-restaurant";
+import {
+  getManagedRestaurant,
+  type GetManagedRestaurantResponse,
+} from "@/api/get-manage-restaurant";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,15 +23,13 @@ import { toast } from "sonner";
 
 const restaurantProfileSchema = z.object({
   name: z.string().min(3, "O nome deve ter no mínimo 3 caracteres"),
-  description: z
-    .string()
-    .min(10, "A descrição deve ter no mínimo 10 caracteres"),
+  description: z.string().nullable(),
 });
 
 type RestaurantProfileForm = z.infer<typeof restaurantProfileSchema>;
 
 export function RestaurantProfileDialog() {
-const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
   const { data: managedRestaurant } = useQuery({
     queryFn: getManagedRestaurant,
@@ -48,22 +49,39 @@ const queryClient = useQueryClient();
     },
   });
 
+  function updateManagedRestaurantCache({
+    name,
+    description,
+  }: RestaurantProfileForm) {
+    const cached = queryClient.getQueryData<GetManagedRestaurantResponse>([
+      "managed-restaurant",
+    ]);
+
+    if (cached) {
+      queryClient.setQueryData<GetManagedRestaurantResponse>(
+        ["managed-restaurant"],
+        {
+          ...cached,
+          name,
+          description,
+        },
+      );
+    }
+    return { cached };
+  }
+
   const { mutateAsync: updateProfileFn } = useMutation({
     mutationFn: updateProfile,
-    onSuccess(_, { name, description }) {
-        const cached = queryClient.getQueryData<GetManagedRestaurantResponse>(["managed-restaurant"])
+    onMutate: ({ name, description }) => {
+      const { cached } = updateManagedRestaurantCache({ name, description });
 
-        if (cached) {
-            queryClient.setQueryData<GetManagedRestaurantResponse>(
-              ["managed-restaurant"],
-              {
-                ...cached,
-                name,
-                description,
-              },
-            );
-        }
-    }
+      return { previousProfile: cached };
+    },
+    onError: (_, __, context) => {
+      if (context?.previousProfile) {
+        updateManagedRestaurantCache(context.previousProfile);
+      }
+    },
   });
 
   async function handleUpdateProfile(data: RestaurantProfileForm) {
